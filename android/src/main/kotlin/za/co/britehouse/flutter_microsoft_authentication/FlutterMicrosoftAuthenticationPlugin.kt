@@ -42,7 +42,7 @@ class FlutterMicrosoftAuthenticationPlugin: MethodCallHandler {
     val scopes: Array<String>? = scopesArg?.toTypedArray()
     val authority: String? = call.argument("kAuthority")
     val configPath: String? = call.argument("configPath")
-    val extraQueryParameters: Map<String, String> = call.argument("extraQueryParameters") ?: {};
+    val extraQueryParameters: Map<String, String> = call.argument("extraQueryParameters") ?: emptyMap<String, String>();
 
 
     if (configPath == null) {
@@ -141,7 +141,7 @@ class FlutterMicrosoftAuthenticationPlugin: MethodCallHandler {
             .startAuthorizationFromActivity(mainActivity)
             .withScopes(scopes.asList())
             .withAuthorizationQueryStringParameters(extraQueryParameters.map{ android.util.Pair(it.key, it.value) } )
-            .withCallback((getAuthInteractiveCallback(result)));
+            .withCallback(getAuthInteractiveCallback(result));
     var parameters = AcquireTokenParameters(parameterBuilder);
     return mSingleAccountApp!!.acquireToken(parameters)
   }
@@ -190,14 +190,18 @@ class FlutterMicrosoftAuthenticationPlugin: MethodCallHandler {
         Log.d(TAG, "Authentication failed: ${exception.errorCode}")
 
         if (exception is MsalClientException) {
-          /* Exception inside MSAL, more info inside MsalError.java */
-          Log.d(TAG, "Authentication failed: MsalClientException")
-          result.error("MsalClientException",exception.errorCode, null)
-
+            /* Exception inside MSAL, more info inside MsalError.java */
+            Log.d(TAG, "Authentication failed: MsalClientException")
+            result.error("MsalClientException",exception.errorCode, null)
         } else if (exception is MsalServiceException) {
-          /* Exception when communicating with the STS, likely config issue */
-          Log.d(TAG, "Authentication failed: MsalServiceException")
-          result.error("MsalServiceException",exception.errorCode, null)
+          if(exception.message!!.contains("AADB2C90118")) {
+            Log.d(TAG, "Authentication failed: Forgot password")
+            result.error("FORGOT_PASSWORD_ERROR",exception.errorCode, null)
+          } else {
+            /* Exception when communicating with the STS, likely config issue */
+            Log.d(TAG, "Authentication failed: MsalServiceException")
+            result.error("MsalServiceException", exception.errorCode, null)
+          }
         }
       }
 
