@@ -42,6 +42,7 @@ class FlutterMicrosoftAuthenticationPlugin: MethodCallHandler {
     val scopes: Array<String>? = scopesArg?.toTypedArray()
     val authority: String? = call.argument("kAuthority")
     val configPath: String? = call.argument("configPath")
+    val extraQueryParameters: Map<String, String> = call.argument("extraQueryParameters") ?: {};
 
 
     if (configPath == null) {
@@ -63,7 +64,7 @@ class FlutterMicrosoftAuthenticationPlugin: MethodCallHandler {
     }
 
     when(call.method){
-      "acquireTokenInteractively" -> acquireTokenInteractively(scopes, authority, result)
+      "acquireTokenInteractively" -> acquireTokenInteractively(scopes, authority, extraQueryParameters, result)
       "acquireTokenSilently" -> acquireTokenSilently(scopes, authority, result)
       "loadAccount" -> loadAccount(result)
       "signOut" -> signOut(result)
@@ -131,12 +132,18 @@ class FlutterMicrosoftAuthenticationPlugin: MethodCallHandler {
             })
   }
 
-  private fun acquireTokenInteractively(scopes: Array<String>, authority: String, result: Result) {
+  private fun acquireTokenInteractively(scopes: Array<String>, authority: String, extraQueryParameters: Map<String, String> , result: Result) {
     if (mSingleAccountApp == null) {
       result.error("MsalClientException", "Account not initialized", null)
     }
 
-    return mSingleAccountApp!!.signIn(mainActivity, "", scopes, getAuthInteractiveCallback(result))
+    var parameterBuilder = AcquireTokenParameters.Builder()
+            .startAuthorizationFromActivity(mainActivity)
+            .withScopes(scopes.asList())
+            .withAuthorizationQueryStringParameters(extraQueryParameters.map{ android.util.Pair(it.key, it.value) } )
+            .withCallback((getAuthInteractiveCallback(result)));
+    var parameters = AcquireTokenParameters(parameterBuilder);
+    return mSingleAccountApp!!.acquireToken(parameters)
   }
 
   private fun acquireTokenSilently(scopes: Array<String>, authority: String, result: Result) {

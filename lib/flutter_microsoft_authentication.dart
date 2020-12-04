@@ -38,9 +38,13 @@ class FlutterMicrosoftAuthentication {
   }
 
   /// Acquire auth token with interactive flow.
-  Future<String> get acquireTokenInteractively async {
+  Future<String> acquireTokenInteractively(
+      [Map<String, dynamic> options]) async {
+    options = options ?? {};
+    final defaultArgs = _createMethodcallArguments();
+    final methodCallArgs = {}..addAll(options..addAll(defaultArgs));
     final String token = await _channel.invokeMethod(
-        'acquireTokenInteractively', _createMethodcallArguments());
+        'acquireTokenInteractively', methodCallArgs);
     return token;
   }
 

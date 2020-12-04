@@ -11,7 +11,14 @@ FlutterMicrosoftAuthentication fma = FlutterMicrosoftAuthentication(
 );
 
 // Sign in interactively
-String authToken = await this.fma.acquireTokenInteractively;
+String authToken = await this.fma.acquireTokenInteractively();
+
+// Alternatively - you can provide extra query extra
+String authToken = await this.fma.acquireTokenInteractively({
+  extraQueryParameters: {
+    'domain_hint': 'login'
+  }
+});
 
 // Sign in silently
 String authToken = await this.fma.acquireTokenSilently;
@@ -34,15 +41,17 @@ dependencies:
 
 ### Configuring MSAL for Android
 
-| [Getting Started](https://docs.microsoft.com/azure/active-directory/develop/guidedsetups/active-directory-android)| [Library](https://github.com/AzureAD/microsoft-authentication-library-for-android) | [API Reference](http://javadoc.io/doc/com.microsoft.identity.client/msal) | [Support](README.md#community-help-and-support)
-| --- | --- | --- | --- |
+| [Getting Started](https://docs.microsoft.com/azure/active-directory/develop/guidedsetups/active-directory-android) | [Library](https://github.com/AzureAD/microsoft-authentication-library-for-android) | [API Reference](http://javadoc.io/doc/com.microsoft.identity.client/msal) | [Support](README.md#community-help-and-support) |
+| ------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------- | ----------------------------------------------- |
 
-1) Register your app
+1. Register your app
+
 - Create App Registration in Azure Portal
 - In Authentication, add Android platform and fill in your bundle id
 - Make note of the MSAL Configuration
 
-2) Add BrowserTabActivity with RedirectUri to Android Manifest.xml
+2. Add BrowserTabActivity with RedirectUri to Android Manifest.xml
+
 ```xml
 <activity android:name="com.microsoft.identity.client.BrowserTabActivity">
     <intent-filter>
@@ -57,7 +66,8 @@ dependencies:
 </activity>
 ```
 
-3) Create Msal Configuration JSON file
+3. Create Msal Configuration JSON file
+
 ```json
 {
   "client_id": "<client id>",
@@ -78,7 +88,8 @@ dependencies:
 }
 ```
 
-4) Add android MSAL config file to pubspec.yaml assets
+4. Add android MSAL config file to pubspec.yaml assets
+
 ```
 assets
     - assets/auth_config.json
@@ -89,20 +100,24 @@ assets
 Library:
 https://github.com/AzureAD/microsoft-authentication-library-for-objc
 
-1) Register your app
+1. Register your app
+
 - Create App Registration in Azure Portal
 - In Authentication, add iOS platform and fill in your bundle id
 - Make note of the MSAL Configuration
 
-2) Add Keychain Sharing capability
+2. Add Keychain Sharing capability
+
 - In Xcode, under your applications Signing and Capabilities, add Keychain Sharing
 - Keychain Group should be `com.microsoft.adalcache`
 - Completely fine to have multiple Keychain Groups
 - This allows MSAL to use the keychain to share Microsoft Authentication sessions
 
-3) Set up URL Schemes
+3. Set up URL Schemes
+
 - Add the following CFBundleURLTypes to your `Info.plist` file.
 - Remember to replace the bundle id.
+
 ```xml
 <key>CFBundleURLTypes</key>
 <array>
@@ -115,8 +130,10 @@ https://github.com/AzureAD/microsoft-authentication-library-for-objc
 </array>
 ```
 
-4) Allow MSAL to use Microsoft Authenticator if it is installed
+4. Allow MSAL to use Microsoft Authenticator if it is installed
+
 - Add the following LSApplicationQueriesSchemes to your `Info.plist` file.
+
 ```xml
 <key>LSApplicationQueriesSchemes</key>
 <array>
@@ -125,8 +142,10 @@ https://github.com/AzureAD/microsoft-authentication-library-for-objc
 </array>
 ```
 
-5) Handle the redirect callback
+5. Handle the redirect callback
+
 - Import MSAL
+
 ```swift
   ...
   import MSAL
@@ -141,5 +160,6 @@ https://github.com/AzureAD/microsoft-authentication-library-for-objc
   }
 ```
 
-6) Ensure that the minimum target is set to iOS 11
+6. Ensure that the minimum target is set to iOS 11
+
 - In Xcode, under General > Deployment info > Set the target to be no less than iOS 11
