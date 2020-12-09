@@ -257,9 +257,17 @@ extension ViewController {
      */
     func signOut(flutterResult: @escaping FlutterResult) {
 
-        guard let applicationContext = self.applicationContext else { return }
+        guard let applicationContext = self.applicationContext else {
+            flutterResult(FlutterError(code: "MISSING_APPLICATION",  message: "Could not sign out without application context", details: nil))
+            return
+        }
 
-        guard let account = self.currentAccount(flutterResult: flutterResult) else { return }
+        guard let account = self.currentAccount(flutterResult: flutterResult) else {
+            print("No active account to sign out of")
+            self.accessToken = ""
+            flutterResult(self.accessToken)
+            return
+        }
 
         do {
 
